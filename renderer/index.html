@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Netflow</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <link rel="stylesheet" href="docking.css">
+</head>
+<body>
+  <div id="title-bar">
+    <div class="app-icon">
+      <!-- SVG Icon -->
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+        <line x1="6" y1="6" x2="6.01" y2="6"></line>
+        <line x1="6" y1="18" x2="6.01" y2="18"></line>
+      </svg>
+    </div>
+    <div id="title">Netflow</div>
+    <div id="window-controls">
+      <div class="button" id="min-btn">
+        <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5" width="12" height="1" fill="currentColor"/></svg>
+      </div>
+      <div class="button" id="max-btn">
+        <svg width="12" height="12" viewBox="0 0 12 12"><rect width="9" height="9" x="1.5" y="1.5" stroke="currentColor" stroke-width="1" fill="none"/></svg>
+      </div>
+      <div class="button" id="close-btn">
+        <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1.5,1.5 L10.5,10.5 M1.5,10.5 L10.5,1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <!-- 插件 UI 容器 -->
+    <div id="dock-container">
+      <div id="tab-bar"></div>
+      <div id="content-area"></div>
+    </div>
+  </div>
+  <script src="../node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+  <script>if(window.jspdf) window.jsPDF = window.jspdf.jsPDF;</script>
+  <script src="../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="docking.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

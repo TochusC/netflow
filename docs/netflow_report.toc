@@ -1,0 +1,26 @@
+\contentsline {section}{\numberline {1}项目结构与工程一览}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}插件接口}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}插件总览}{4}{subsection.1.2}%
+\contentsline {section}{\numberline {2}关键功能实现（抓包与插件生态）}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}抓包实现（Python Sniffer）}{5}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}底层捕获机制}{5}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}协议解析与过滤}{5}{subsubsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.3}进程间通信 (IPC)}{5}{subsubsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.2}数据流与广播（Data Pipeline）}{5}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}插件生态与安全边界}{6}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Docking 与 Popout 系统}{6}{subsection.2.4}%
+\contentsline {section}{\numberline {3}插件模块详解}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}数据包可视化 (Packet Visualizer)}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}流量图表 (Traffic Grapher)}{7}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}网络报告 (Network Reporter)}{7}{subsection.3.3}%
+\contentsline {section}{\numberline {4}程序流程}{7}{section.4}%
+\contentsline {section}{\numberline {5}测试与截图}{8}{section.5}%
+\contentsline {subsection}{\numberline {5.1}主界面与 Docking 系统}{8}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}抓包控制}{8}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}数据包列表视图}{8}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}深层数据分析}{9}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}流量趋势监控}{9}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}报告生成}{9}{subsection.5.6}%
+\contentsline {subsection}{\numberline {5.7}插件管理}{9}{subsection.5.7}%
+\contentsline {section}{\numberline {6}程序亮点}{10}{section.6}%
+\contentsline {section}{\numberline {7}致谢}{10}{section.7}%

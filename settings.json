@@ -1,0 +1,13 @@
+{
+  "pluginsDirectory": "plugins",
+  "enabledPlugins": [
+    "python-sniffer",
+    "traffic-grapher",
+    "network_reporter",
+    "packet-visualizer"
+  ],
+  "basePreload": "preload-base.js",
+  "windowTitle": "Netflow Analyzer",
+  "renderHTML": "renderer/index.html",
+  "renderCSS": "assets/style.css"
+}

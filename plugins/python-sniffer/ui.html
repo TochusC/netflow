@@ -1,0 +1,65 @@
+
+<div class="plugin-ui python-sniffer-ui">
+  <h3>Python Sniffer 实时监控</h3>
+  <div class="control-panel">
+    <button id="toggle-sections-btn">展开统计数据</button>
+    <span id="total-packets">总数据包: 0</span>
+    <div class="stats-panel">
+      <div class="stats-section" style="display:block;">
+        <h4>协议统计</h4>
+        <div class="table-container">
+          <table class="stats-table">
+            <thead><tr><th>协议</th><th>计数</th></tr></thead>
+            <tbody id="python-stats-table"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="packets-section" style="display:block;">
+        <div class="table-container">
+          <table class="packets-table">
+            <thead>
+              <tr><th>时间</th><th>源地址</th><th>目的地址</th><th>协议</th><th>长度</th></tr>
+            </thead>
+            <tbody id="python-packets-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.python-sniffer-ui { border: 1px solid #28a745; padding: 10px; margin-top: 10px; }
+.python-sniffer-ui h3 { color: #28a745; }
+.control-panel {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-top: 10px;
+  padding: 10px;
+}
+.table-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+.stats-table, .packets-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.stats-table th, .stats-table td,
+.packets-table th, .packets-table td {
+  padding: 5px;
+  text-align: left;
+}
+.stats-table th, .packets-table th {
+  background-color: #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.stats-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+</style>

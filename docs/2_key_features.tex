@@ -1,0 +1,81 @@
+\section{关键功能实现（抓包与插件生态）}
+本节详细说明抓包模块、插件生态策略、数据管线与 Docking 系统的实现细节，便于教师评估设计的技术深度。
+
+\subsection{抓包实现（Python Sniffer）}
+抓包模块的核心是一个独立运行的 Python 脚本（\texttt{sniffer.py}），它通过原始套接字（Raw Socket）直接与网络接口交互。
+
+\subsubsection{底层捕获机制}
+使用了 Python 的 \texttt{socket} 库，配置为 \texttt{AF\_INET} 和 \texttt{SOCK\_RAW}，并设置 \texttt{IP\_HDRINCL} 选项以包含 IP 头。在 Windows 平台上，还需要调用 \texttt{ioctl(SIO\_RCVALL)} 以启用混杂模式，捕获流经网卡的所有数据包。
+
+\begin{lstlisting}[language=Python, caption=Python Raw Socket 初始化]
+self.socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_IP)
+self.socket.bind((self.local_ip, 0))
+self.socket.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+self.socket.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
+\end{lstlisting}
+
+\subsubsection{协议解析与过滤}
+捕获到的二进制数据包首先被解析 IP 头（前20字节），提取源/目的 IP 和协议类型。如果是 TCP/UDP，进一步解析端口号以推断应用层协议（如 HTTP, DNS）。
+过滤器实现了一个基于 \texttt{eval} 的动态求值引擎。用户输入的过滤表达式（如 \texttt{src 192.168.1.1 and proto TCP}）被转换为 Python 表达式，并在包含 \texttt{src\_ip}, \texttt{dst\_ip} 等变量的上下文中执行。这种方式提供了极高的灵活性，支持复杂的逻辑组合。
+
+\subsubsection{进程间通信 (IPC)}
+Python 进程将解析后的数据包以结构化的文本格式输出到标准输出（stdout）。Electron 主进程通过 Node.js 的 \texttt{child\_process.spawn} 启动该脚本，并监听其 stdout 数据流，按行缓冲并解析为 JSON 对象，最后通过 IPC 广播给发送回渲染进程的嗅探器插件，实现数据的实时传输。
+嗅探器插件接收数据，进行必要的预处理后，将数据添加至DOM全局变量，并广播给所有注册的可视化插件。
+
+\subsection{数据流与广播（Data Pipeline）}
+数据从捕获到展示经历了以下阶段：
+\begin{enumerate}
+    \item \textbf{采集层}：Python 进程捕获原始字节，解析出关键字段（五元组、长度、Payload），并进行初步过滤。
+    \item \textbf{传输层}：主进程通过 Stdout 接收文本流，反序列化为 JavaScript 对象，并附加时间戳。
+    \item \textbf{接收层}：主进程通过 \texttt{packet-data-batch} 频道将数据包数组广播发送到所有渲染器中的嗅探器插件。
+    \item \textbf{处理层}：嗅探器插件接收数据，进行预处理并存储于全局DOM变量，广播给所有注册的可视化插件。
+    \item \textbf{展示层}：各插件根据自身需求处理数据。例如，Visualizer 将数据存入内存数组并更新 UI，Grapher 将数据聚合到时间桶中。
+\end{enumerate}
+
+下面的流程图展示了 Netflow 的多层架构与插件环境：
+
+\begin{figure}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[node distance=15mm]
+  % Nodes
+  \node (main) [startstop, align=center] {Electron 主进程 (Main)\\ \footnotesize (插件加载 \& IPC 枢纽)};
+  \node (sniffer) [process, below=of main, align=center] {Python 抓包插件\\ \footnotesize (外部子进程 / Sniffer)};
+  
+  \node (renderer) [startstop, right=of main, xshift=4cm, align=center] {Electron 渲染进程 (Renderer)\\ \footnotesize (UI \& 展示层)};
+  \node (docking) [process, below=of renderer, align=center] {Docking 停靠系统\\ \footnotesize (插件容器)};
+  
+  % Visualizer Plugins
+  \node (grapher) [process, below=of docking, align=center, minimum width=2.5cm] {流量图表\\ \footnotesize (Traffic Grapher)};
+  \node (packet) [process, left=of grapher, align=center, minimum width=2.5cm] {数据包可视化\\ \footnotesize (Packet Visualizer)};
+  \node (reporter) [process, right=of grapher, align=center, minimum width=2.5cm] {网络报告\\ \footnotesize (Network Reporter)};
+
+  % Edges
+  \draw [arrow] (main) -- node[left, font=\footnotesize] {启动 (Spawn)} (sniffer);
+  \draw [arrow] (sniffer) -- node[right, font=\footnotesize] {标准输出 (Stdout)} (main);
+  \draw [arrow] (main) -- node[above, font=\footnotesize] {IPC (数据转发)} (renderer);
+  \draw [arrow] (renderer) -- (docking);
+  
+  % Edges to plugins
+  \draw [arrow] (docking) -- (packet);
+  \draw [arrow] (docking) -- (grapher);
+  \draw [arrow] (docking) -- (reporter);
+  
+  % Control flow
+  \draw [arrow, dashed] (docking) to[bend left=20] node[below, font=\footnotesize] {IPC (控制/设置)} (main);
+
+\end{tikzpicture}
+}
+\caption{Netflow 架构图（进程分离与数据流向）}
+\end{figure}
+
+\subsection{插件生态与安全边界}
+为保证稳定与可测性，插件运行在严格的Electron沙箱环境中。每个插件通过其 \texttt{plugin.json} 声明所需要加入的脚本代码，包括主进程入口、渲染进程 Preload 脚本和 UI 资源。Preload 脚本负责在渲染器中暴露受限的 API，允许插件与主进程通过 IPC 通信，但禁止直接访问 Node.js 或 DOM，防止恶意代码执行。
+
+\subsection{Docking 与 Popout 系统}
+项目实现了可停靠（docking）与弹出窗口（popout）能力，核心实现点：
+
+\begin{itemize}
+  \item Docking 容器：渲染层提供一个 Docking 管理组件（\texttt{renderer/docking.js} + \texttt{docking.css}），支持面板的拖拽、停靠与拆分。
+  \item Popout 窗口：插件可声明 \texttt{ui.popout = true}，由宿主通过 \texttt{BrowserWindow} 新建窗口加载该插件的 \texttt{ui.html}，并保留与主进程的双向 IPC。
+\end{itemize}

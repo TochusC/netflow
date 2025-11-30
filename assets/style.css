@@ -1,0 +1,300 @@
+:root {
+  --primary-color: #007acc;
+  --primary-hover: #005fa3;
+  --danger-color: #dc3545;
+  --danger-hover: #c82333;
+  --success-color: #28a745;
+  --bg-color: #f4f6f8;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --border-color: #e1e4e8;
+  --shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: 0; /* Removed padding */
+  height: 100vh; /* Full height */
+  overflow: hidden; /* Prevent body scroll */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom Title Bar */
+#title-bar {
+  height: 32px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  -webkit-app-region: drag;
+  user-select: none;
+  padding-left: 12px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.app-icon {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  color: var(--primary-color);
+}
+
+#title {
+  flex: 1;
+  font-weight: 600;
+  color: #333;
+}
+
+#window-controls {
+  display: flex;
+  -webkit-app-region: no-drag;
+  height: 100%;
+}
+
+#window-controls .button {
+  width: 46px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.1s;
+  color: #666;
+}
+
+#window-controls .button:hover {
+  background-color: #e8eaed;
+  color: #000;
+}
+
+#window-controls #close-btn:hover {
+  background-color: #e81123;
+  color: #fff;
+}
+
+.container {
+  width: 100%;
+  flex: 1;
+  max-width: none; /* Remove max-width */
+  margin: 0;
+  overflow: hidden;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  font-weight: 600;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+/* 插件管理区域 */
+#plugins {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+
+#pluginList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.plugin-item {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fafbfc;
+  transition: all 0.2s;
+}
+
+.plugin-item:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0, 122, 204, 0.1);
+}
+
+.plugin-item span {
+  font-weight: 500;
+  flex: 1;
+}
+
+.plugin-item label {
+  margin-right: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.plugin-item input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+/* 控制按钮区域 */
+#controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#startBtn {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+#startBtn:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+#stopBtn {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+#stopBtn:hover:not(:disabled) {
+  background-color: var(--danger-hover);
+}
+
+.plugin-item button {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  margin-left: 5px;
+  background-color: #e1e4e8;
+  color: #333;
+}
+
+.plugin-item button:hover {
+  background-color: #d1d5da;
+}
+
+/* 过滤输入框 */
+#filter {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  background: var(--card-bg);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+#filter label {
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+#filter input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+#filter input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+}
+
+/* 插件 UI 容器 */
+#plugin-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.plugin-root {
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 通用表格样式 (供插件使用) */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #555;
+}
+
+tr:hover {
+  background-color: #f1f8ff;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

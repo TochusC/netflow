@@ -1,0 +1,154 @@
+<style>
+  .traffic-grapher-container {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fff;
+    color: #333;
+    box-sizing: border-box;
+  }
+
+  .graph-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+  }
+
+  .viz-header h3 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .controls {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .control-input {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .control-input:focus {
+    border-color: #007bff;
+  }
+
+  .control-btn {
+    padding: 8px 16px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+
+  .control-btn:hover {
+    background-color: #0056b3;
+  }
+
+  .control-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .graph-container {
+    flex: 1;
+    position: relative;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+    min-height: 200px;
+  }
+
+  #traffic-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #traffic-tooltip {
+    position: absolute;
+    display: none;
+    background: rgba(33, 37, 41, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    pointer-events: none;
+    font-size: 12px;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    line-height: 1.4;
+  }
+
+  .stats {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #6c757d;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+  }
+
+  .stat-item {
+    background: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .stat-value {
+    font-weight: 600;
+    color: #333;
+  }
+</style>
+
+<div class="traffic-grapher-container">
+  <div class="graph-header">
+    <div class="viz-header">
+      <h3>流量图 (Traffic Grapher)</h3>
+    </div>
+    <div class="controls">
+      <input type="text" id="traffic-filter-input" class="control-input" placeholder="通过协议过滤 (例如 TCP, UDP)">
+      <button id="traffic-refresh-btn" class="control-btn">刷新图表</button>
+      <label class="control-checkbox">
+        <input type="checkbox" id="traffic-auto-refresh" checked> 
+        <span>自动刷新</span>
+      </label>
+    </div>
+  </div>
+  
+  
+  <div class="graph-container">
+    <canvas id="traffic-canvas"></canvas>
+    <div id="traffic-tooltip"></div>
+  </div>
+  
+  <div class="stats">
+    <div class="stat-item">总包数: <span id="traffic-total-packets" class="stat-value">0</span></div>
+    <div class="stat-item">显示包数: <span id="traffic-displayed-packets" class="stat-value">0</span></div>
+  </div>
+</div>

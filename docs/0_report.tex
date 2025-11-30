@@ -1,0 +1,79 @@
+% Netflow 项目说明文档（LaTeX）
+\documentclass[12pt,a4paper]{article}
+% No bibliography is used in this document.
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ctex} % 使用 ctex 包支持中文标题和日期本地化
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{setspace}
+\onehalfspacing
+
+% --- 代码高亮配置 Start ---
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4
+}
+
+\lstset{style=mystyle}
+% --- 代码高亮配置 End ---
+
+% TikZ styles for flowchart (use tikzset for pdflatex compatibility)
+\tikzset{
+  startstop/.style={rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=red!10},
+  process/.style={rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!10},
+  io/.style={trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!10},
+  arrow/.style={thick,->,>=Stealth}
+}
+
+\title{Netflow 项目说明文档}
+\author{许祖耀-2120250722\\\\计算机网络技术03521705-课程作业}
+\date{\today}
+\begin{document}
+\maketitle
+\maketitle
+
+\input{1_intro.tex}
+
+\input{2_key_features.tex}
+
+\input{3_plugins.tex}
+
+\input{4_flow.tex}
+
+\input{5_screenshots.tex}
+
+\input{6_highlights.tex}
+
+\input{7_acknowledgements.tex}
+
+\end{document}

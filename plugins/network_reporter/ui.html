@@ -1,0 +1,83 @@
+<div class="plugin-panel">
+  <h3>网络分析报告生成器</h3>
+  <div class="controls">
+    <div class="control-group">
+      <label>报告标题:</label>
+      <input type="text" id="report-title" value="网络流量分析报告" placeholder="输入报告标题">
+    </div>
+    <div class="control-group">
+      <label>协议过滤:</label>
+      <select id="report-protocol">
+        <option value="all">全部 (All)</option>
+        <option value="DNS">DNS</option>
+        <option value="DHCP">DHCP</option>
+        <option value="HTTP">HTTP</option>
+        <option value="TCP">TCP</option>
+        <option value="UDP">UDP</option>
+        <option value="ICMP">ICMP</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>包含数据包数量:</label>
+      <select id="report-limit">
+        <option value="100">最近 100 个</option>
+        <option value="500">最近 500 个</option>
+        <option value="1000">最近 1000 个</option>
+        <option value="all">全部</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>中文字体 (可选):</label>
+      <input type="file" id="report-font" accept=".ttf,.otf">
+      <span class="hint" title="选择本地字体文件(如 C:\Windows\Fonts\msyh.ttf)以支持中文显示">?</span>
+    </div>
+    <button id="btn-generate-pdf" class="primary-btn">生成 PDF 报告</button>
+  </div>
+  <div id="report-status" class="status-msg"></div>
+</div>
+
+<style>
+  .hint {
+    cursor: help;
+    background: #ddd;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  .plugin-panel {
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  .controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .control-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .primary-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .primary-btn:hover {
+    background-color: #0056b3;
+  }
+  .status-msg {
+    color: #666;
+    font-size: 0.9em;
+  }
+</style>

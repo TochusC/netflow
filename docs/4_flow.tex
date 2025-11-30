@@ -1,0 +1,51 @@
+\section{程序流程}
+
+NetFlow 的运行流程涉及 Electron 主进程、渲染进程以及外部 Python 嗅探进程之间的紧密协作。
+
+\begin{enumerate}
+  \item \textbf{系统初始化}：应用启动时，\texttt{main.js} 初始化 Electron 主进程，创建主窗口，并实例化 \texttt{PluginManager} 和 \texttt{DockingManager}。
+  \item \textbf{插件加载}：\texttt{PluginManager} 扫描 \texttt{plugins/} 目录，读取 \texttt{plugin.json} 配置，根据插件类型（Sniffer, Visualizer, Reporter）将其注册到系统中。
+  \item \textbf{界面渲染}：渲染进程加载 \texttt{index.html}，初始化 Docking 布局，并向主进程请求已加载的插件 UI 资源。
+  \item \textbf{嗅探器启动}：主进程通过 \texttt{child\_process} 模块生成 Python 子进程 (\texttt{sniffer.py})，用于底层数据包捕获。
+  \item \textbf{数据捕获与传输}：
+    \begin{itemize}
+        \item Python 进程使用原始套接字 (Raw Socket) 捕获网络数据包。
+        \item 解析数据包头部信息，并通过标准输出 (Stdout) 发送。
+        \item 主进程监听 Stdout，接收数据并通过 IPC 通道发送至嗅探器插件。
+        \item 嗅探器插件接收数据，进行必要的预处理后，将数据添加至DOM全局变量，并广播给所有注册的可视化插件。
+    \end{itemize}
+  \item \textbf{可视化与交互}：各可视化插件接收数据流，更新内存中的数据结构，并驱动 Canvas 或 DOM 进行实时渲染。
+\end{enumerate}
+
+\vspace{1cm}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[node distance=1.6cm]
+
+% Nodes
+\node (init) [startstop] {系统初始化 (Main)};
+\node (load) [process, below of=init] {加载插件 (PluginManager)};
+\node (render) [process, below of=load] {渲染主界面 (Renderer)};
+\node (start) [io, below of=render] {启动嗅探 (User)};
+\node (python) [process, below of=start] {启动 Python 进程};
+\node (capture) [process, below of=python] {Raw Socket 捕获 \& 解析};
+\node (main_relay) [process, below of=capture] {Stdout 接收 \& IPC 转发 (Main)};
+\node (sniffer_logic) [process, below of=main_relay] {嗅探插件处理 (Renderer)};
+\node (visual_update) [process, below of=sniffer_logic] {可视化插件渲染};
+
+% Arrows
+\draw [arrow] (init) -- (load);
+\draw [arrow] (load) -- (render);
+\draw [arrow] (render) -- (start);
+\draw [arrow] (start) -- (python);
+\draw [arrow] (python) -- (capture);
+\draw [arrow] (capture) -- node[anchor=west] {Stdout} (main_relay);
+\draw [arrow] (main_relay) -- node[anchor=west] {IPC} (sniffer_logic);
+\draw [arrow] (sniffer_logic) -- node[anchor=west] {DOM/Event} (visual_update);
+\draw [arrow] (visual_update) -- ++(4.0,0) |- node[anchor=south] {实时刷新} (render);
+
+\end{tikzpicture}
+\caption{NetFlow 系统运行流程图}
+\label{fig:flowchart}
+\end{figure}

@@ -1,0 +1,10 @@
+{
+  "name": "python-sniffer",
+  "type": "sniffer",
+  "entry": "index.js",
+  "preload": "preload.js",
+  "ui": "ui.html",
+  "renderer": "renderer.js",
+  "version": "1.0.0",
+  "author": "netflow"
+}

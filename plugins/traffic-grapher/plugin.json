@@ -1,0 +1,9 @@
+{
+  "name": "traffic-grapher",
+  "type": "visualizer",
+  "entry": "index.js",
+  "ui": "ui.html",
+  "renderer": "renderer.js",
+  "version": "1.0.0",
+  "author": "netflow"
+}

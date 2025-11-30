@@ -1,0 +1,72 @@
+\begin{abstract}
+本报告详细阐述了 NetFlow —— 模块化网络流量分析与可视化平台的设计与实现。该项目旨在构建一个跨平台、可扩展的桌面应用，基于 Electron 框架开发，通过多进程架构整合了 Node.js 的系统能力与 Chromium 的渲染优势。核心功能包括基于 Python Raw Socket 的底层数据包捕获与动态过滤引擎、采用沙箱机制保障安全性的插件化生态系统、以及支持高性能虚拟滚动与 Canvas 绘图的可视化组件。此外，项目还实现了一个灵活的 Docking 停靠系统，允许用户自定义多窗口工作区。报告将深入探讨从底层抓包、IPC 进程间通信、数据管线分发到前端高性能渲染的完整技术链路，展示在计算机网络与现代软件工程领域的综合实践能力。
+\end{abstract}
+
+\clearpage
+
+\tableofcontents 
+
+\clearpage
+
+\section{项目结构与工程一览}
+Netflow是一个模块化的网络流量分析与可视化工具，
+是基于 Electron 框架实现的跨平台桌面应用，
+其支持插件化扩展抓包、数据处理与可视化功能。
+Electron 提供主进程（Node.js 环境）与渲染进程（Chromium 环境）的多进程架构，实现跨平台GUI与本地系统交互。
+具体功能如抓包、数据解析与可视化均通过插件实现，插件以声明式 JSON 格式注册，运行在受限的沙箱环境中，确保安全性与稳定性。
+
+下面是Netflow的关键文件及其职责：
+
+\begin{tabular}{@{}p{5.5cm}p{8.5cm}@{}}
+路径 & 说明 \\\midrule
+  \texttt{main.js} & Electron 主进程入口：初始化应用、插件管理器与主 IPC 通道。 \\\midrule
+  \texttt{preload-base.js}, \texttt{preload-generated.js} & Preload 脚本：在渲染进程安全地暴露受限 API（插件沙箱权限边界）。 \\\midrule
+  \texttt{renderer/} & 主渲染层代码（UI 视图、Docking 管理、插件渲染容器）。 \\\midrule
+  \texttt{utils/ipc.js} & 主/渲染进程间与插件间通信的抽象层（message contracts、版本兼容）。 \\\midrule
+  \texttt{plugins/} & 插件目录：每个插件为独立文件夹，包含 \texttt{plugin.json}、主入口与 UI 资源。 \\\midrule
+  \texttt{plugins/*/plugin.json} & 插件声明：类型（sniffer/visualizer/reporter）、入口脚本、UI 桌面/Popout 配置、权限说明。 \\\midrule
+  \texttt{plugins/python-sniffer/} & Sniffer 插件示例（通过外部进程与主进程通信以获取原始包数据）。 \\\midrule
+  \texttt{plugins/packet-visualizer/} & 数据可视化插件：订阅解析后流量并渲染图表/拓扑。 \\\midrule
+  \texttt{docs/} & 说明文档。 \\\bottomrule
+\end{tabular}
+
+\subsection{插件接口}
+每个插件遵循统一的 JSON 声明和运行时接口：
+plugin.json 示例：
+\begin{verbatim}
+{
+  "name": "python-sniffer",
+  "type": "sniffer",
+  "entry": "index.js",
+  "preload": "preload.js",
+  "ui": "ui.html",
+  "renderer": "renderer.js",
+  "version": "1.0.0",
+  "author": "netflow"
+}
+\end{verbatim}
+
+字段说明：
+\begin{itemize}
+  \item \texttt{name}：插件唯一标识符。
+  \item \texttt{type}：插件类型（sniffer/visualizer/reporter）。
+  \item \texttt{entry}：主进程入口脚本路径。
+  \item \texttt{preload}：渲染进程 Preload 脚本路径（暴露受限 API）。
+  \item \texttt{ui}：插件 UI 主 HTML 文件路径。
+  \item \texttt{renderer}：渲染进程入口脚本路径。
+  \item \texttt{version}：插件版本号。
+  \item \texttt{author}：插件作者信息。
+\end{itemize}
+
+Netflow 通过解析该 JSON 文件动态加载插件，并根据声明的入口脚本和 UI 资源初始化插件实例, 确保插件在受控环境中运行，具体实现详见第~\ref{sec:plugins}节。
+
+\subsection{插件总览}
+目前Netflow实现了以下插件：
+\begin{itemize}
+  \item \textbf{Python Sniffer}：基于 Python 的抓包插件，启动外部进程捕获原始网络包并通过 Stdout 传输给主进程。
+  \item \textbf{Packet Visualizer}：数据包可视化插件，订阅解析后的流量数据并以虚拟列表形式展示，支持过滤与搜索。
+  \item \textbf{Traffic Grapher}：实时流量图表插件，将流量数据聚合到时间桶中并绘制折线图，支持多种协议分类。
+  \item \textbf{Network Reporter}：网络报告生成器插件，基于捕获的数据生成 HTML 格式的流量分析报告。
+\end{itemize}
+
+其中，Python Sniffer 插件负责底层数据采集，其他插件则订阅数据并提供不同的可视化与分析功能。插件通过 IPC 与主进程通信，确保数据流的实时传输与处理。

@@ -1,0 +1,75 @@
+\section{插件系统设计与实现}
+\label{sec:plugins}
+NetFlow 采用高度模块化的架构，核心功能均通过插件实现。本节将详细阐述插件系统的底层实现机制，涵盖从插件发现、加载到前端隔离渲染的全过程。涉及的核心文件包括 \texttt{main.js}、\texttt{utils/ipc.js}、\texttt{renderer/app.js} 以及 \texttt{preload-base.js}。
+
+\subsection{插件发现与动态预加载 (Backend)}
+在 Electron 主进程启动时，系统通过 \texttt{utils/settings-loader.js} 执行插件发现逻辑：
+\begin{enumerate}
+    \item \textbf{目录扫描}：遍历 \texttt{plugins/} 目录，读取每个子目录下的 \texttt{plugin.json} 清单文件，获取插件的元数据（名称、类型、入口文件等）。
+    \item \textbf{动态 Preload 组装}：为了赋予插件访问 Node.js 底层能力（如文件系统、网络）的同时保持上下文隔离，系统在启动时动态生成 \texttt{preload-generated.js}。
+    \begin{itemize}
+        \item 系统首先读取基础预加载脚本 \texttt{preload-base.js}，其中定义了核心的 \texttt{netflowAPI}。
+        \item 接着遍历所有已启用的插件，将其定义的 \texttt{preload.js} 内容追加到文件中，并使用立即执行函数表达式 (IIFE) 包裹以避免全局变量污染。
+        \item 最终生成的脚本被设置为 \texttt{BrowserWindow} 的 \texttt{webPreferences.preload} 属性。
+    \end{itemize}
+\end{enumerate}
+
+\subsection{前端沙箱与隔离渲染 (Renderer)}
+在渲染进程 (\texttt{renderer/app.js}) 中，插件的 UI 和逻辑被严格隔离，以确保系统的稳定性和安全性。
+
+
+为了防止插件的 CSS 样式污染全局或其他插件，系统为每个插件实例创建一个宿主容器，并开启 \textbf{Shadow DOM (Open Mode)}。插件的 HTML 内容 (\texttt{uiContent}) 直接注入到 Shadow Root 中，从而实现样式的完全隔离。
+因此插件的前端逻辑 (\texttt{renderJS}) 并非直接执行，而是经过特殊的封装处理：
+\begin{enumerate}
+    \item \textbf{Blob URL 加载}：插件 JS 代码被转换为 Blob 对象，并通过 \texttt{<script src="blob:...">} 标签动态注入。
+    \item \textbf{作用域注入}：代码被包裹在一个闭包中，接收当前插件实例的 \texttt{scopeId}（宿主元素 ID）。
+    \item \textbf{DOM 操作代理 (Proxy)}：
+    为了让插件开发者能像操作普通文档一样操作 Shadow DOM，系统创建了一个 \texttt{window.document} 的 \textbf{Proxy 代理对象}。
+
+    % 拦截 DOM 查询方法，重定向到 ShadowRoot
+    \begin{lstlisting}[language=Python, caption=DOM 代理示例,label=lst:dom-proxy]
+    const document = new Proxy(window.document, {
+        get: (target, prop) => {
+            // Intercept DOM query methods and redirect to ShadowRoot
+            if (prop === 'getElementById') return (id) => shadowRoot.getElementById(id);
+            if (prop === 'querySelector') return (selector) => shadowRoot.querySelector(selector);
+            // ...
+            return target[prop];
+        }
+    });
+    \end{lstlisting}
+
+    通过这种机制，插件代码中的 \texttt{document.getElementById} 实际上是在该插件的 Shadow Root 范围内查找元素，从而实现了 DOM 操作的虚拟化和隔离。
+\end{enumerate}
+
+\subsection{IPC 通信桥接}
+主进程与渲染进程的通信通过 \texttt{utils/ipc.js} 和 \texttt{preload-base.js} 协同完成：
+\begin{itemize}
+    \item \textbf{Context Bridge}：\texttt{preload-base.js} 使用 \texttt{contextBridge.exposeInMainWorld} 将安全的 API 暴露给 \texttt{window.netflowAPI}，阻断了渲染进程对 Node.js 环境的直接访问。
+    \item \textbf{资源请求}：当渲染进程需要加载插件时，通过 \texttt{invoke('get-plugins')} 向主进程请求。主进程读取插件的 HTML 和 JS 文件内容并返回，而不是让渲染进程直接读取文件系统。
+\end{itemize}
+
+\section{内置插件功能详解}
+
+\subsection{数据包可视化 (Packet Visualizer)}
+该插件提供了类似 Wireshark 的列表视图。为了处理大量数据包（可能达到数万条）导致的 DOM 性能问题，实现了\textbf{虚拟滚动 (Virtual Scrolling)}技术。
+\begin{itemize}
+    \item \textbf{原理}：仅渲染当前视口可见的行（加上少量缓冲区）。通过计算滚动条位置，动态切片数据数组并生成 HTML。
+    \item \textbf{Hex 视图}：点击数据包可查看十六进制转储（Hex Dump），同时显示对应的 ASCII 字符，便于分析 Payload 内容。
+\end{itemize}
+
+\subsection{流量图表 (Traffic Grapher)}
+该插件实时展示网络流量趋势。
+\begin{itemize}
+    \item \textbf{渲染技术}：使用 HTML5 \texttt{<canvas>} API 进行高性能绘图，避免了大量 DOM 节点操作。
+    \item \textbf{数据聚合}：将接收到的数据包按秒聚合（Time Bucketing），计算每秒的字节数和包数。
+    \item \textbf{交互}：支持鼠标悬停显示具体时刻的流量数值（Tooltip）。
+\end{itemize}
+
+\subsection{网络报告 (Network Reporter)}
+该插件用于生成专业的 PDF 分析报告。
+\begin{itemize}
+    \item \textbf{技术栈}：集成 \texttt{jspdf} 和 \texttt{jspdf-autotable} 库。
+    \item \textbf{统计分析}：在前端计算协议分布（Protocol Distribution）、Top 5 源/目的 IP（Top Talkers）等统计信息。
+    \item \textbf{自定义字体}：支持加载本地 TTF 字体文件，以解决 PDF 生成中的中文乱码问题。
+\end{itemize}

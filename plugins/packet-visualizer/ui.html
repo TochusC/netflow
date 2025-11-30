@@ -1,0 +1,218 @@
+<style>
+  .viz-container {
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    margin-top: 20px;
+    font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  .viz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+  }
+  .viz-header h3 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+  }
+  .viz-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .viz-controls input[type="text"], .viz-controls select {
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+  .viz-controls input[type="text"]:focus, .viz-controls select:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  .viz-controls button {
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .viz-controls button:hover {
+    background: #0056b3;
+  }
+  .viz-table-wrapper {
+    max-height: 480px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    width: 100%;
+  }
+  .viz-table {
+    margin-top: 0px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .viz-table th, .viz-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+    height: 45px; /* Fixed height for virtual scrolling */
+    box-sizing: border-box;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .viz-table th {
+    background: #f8f9fa;
+    position: sticky;
+    top: 0;
+    font-weight: 600;
+    color: #555;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  .viz-table tr:hover {
+    background-color: #f8faff;
+  }
+  .viz-stats {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #777;
+    display: flex;
+    justify-content: space-between;
+  }
+  .viz-btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .viz-btn-sm:hover {
+    background: #5a6268;
+  }
+
+  /* Modal Styles */
+  .viz-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.5); 
+    backdrop-filter: blur(2px);
+  }
+  .viz-modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; 
+    padding: 25px;
+    border: 1px solid #888;
+    width: 80%; 
+    max-width: 900px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: modalFadeIn 0.3s;
+  }
+  @keyframes modalFadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  .viz-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .viz-close:hover,
+  .viz-close:focus {
+    color: #000;
+    text-decoration: none;
+  }
+  .hex-view {
+    font-family: 'Consolas', 'Monaco', monospace;
+    white-space: pre;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #333;
+  }
+  .hex-offset { color: #007bff; margin-right: 15px; }
+  .hex-bytes { color: #333; margin-right: 15px; }
+  .hex-ascii { color: #28a745; }
+</style>
+
+<div class="viz-container">
+  <div class="viz-header">
+    <h3>高级包可视化 (Packet Visualizer)</h3>
+    <div class="viz-controls">
+      <input type="text" id="viz-filter" placeholder="过滤 (例如: protocol == 'TCP' and length > 50)" style="width: 300px;">
+      <select id="viz-sort">
+        <option value="time-asc" selected>时间 (旧->新)</option>
+        <option value="time-desc">时间 (新->旧)</option>
+        <option value="length-desc">长度 (大->小)</option>
+        <option value="length-asc">长度 (小->大)</option>
+        <option value="protocol">协议</option>
+      </select>
+      <button id="viz-refresh">刷新</button>
+      <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+        <input type="checkbox" id="viz-auto-refresh" checked> 
+        <span>自动刷新</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="viz-table-wrapper" id="viz-table-wrapper">
+    <table class="viz-table" id="viz-table">
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>时间</th>
+          <th>源地址</th>
+          <th>目的地址</th>
+          <th>协议</th>
+          <th>长度</th>
+          <th>数据</th>
+        </tr>
+      </thead>
+      <tbody id="viz-tbody">
+        <!-- Data will be injected here -->
+      </tbody>
+    </table>
+  </div>
+  <div class="viz-stats" id="viz-stats-display">
+    <span>等待数据...</span>
+    <span id="viz-scroll-status" style="color: #dc3545; display: none;">已暂停自动滚动 (滚动到顶部恢复)</span>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="viz-modal" class="viz-modal">
+  <div class="viz-modal-content">
+    <span class="viz-close" id="viz-modal-close">&times;</span>
+    <h3 style="margin-top: 0; margin-bottom: 20px;">数据包详情</h3>
+    <div id="viz-packet-detail"></div>
+  </div>
+</div>

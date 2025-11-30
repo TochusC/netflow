@@ -1,0 +1,83 @@
+\section{测试与截图}
+
+本节展示了 NetFlow 系统的实际运行效果，涵盖了从主界面布局到各个功能插件的具体操作视图。
+
+\subsection{主界面与 Docking 系统}
+图 \ref{fig:docking} 展示了 NetFlow 的主界面，采用了灵活的 Docking 布局系统。用户可以自由拖拽、停靠各个插件窗口，构建个性化的工作区。图中展示了多个插件协同工作的场景，体现了多任务处理的能力。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshots/docking_system.png}
+    \caption{应用主界面与 Docking 系统}
+    \label{fig:docking}
+\end{figure}
+
+\subsection{抓包控制}
+图 \ref{fig:sniffer} 展示了 Python Sniffer 抓包插件的运行状态。界面中包含了开始/停止控制按钮以及过滤器输入框，用户可以在此输入类 BPF 风格的过滤表达式（如 \texttt{src 192.168.1.1}）来筛选特定的网络流量，底层通过 Python 脚本实时捕获并转发数据。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshots/python-sniffer.png}
+    \caption{Python Sniffer 抓包运行中}
+    \label{fig:sniffer}
+\end{figure}
+
+\subsection{数据包列表视图}
+图 \ref{fig:visualizer} 展示了数据包可视化插件的主视图。该插件使用虚拟列表技术渲染大量数据包，保证了在处理数万条记录时的流畅度。列表清晰地展示了时间戳、源/目的 IP、协议类型和长度等关键信息，并支持点击查看详情。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshots/packet-visualizer.png}
+    \caption{数据包可视化列表 (Packet Visualizer)}
+    \label{fig:visualizer}
+\end{figure}
+
+\subsection{深层数据分析}
+图 \ref{fig:hex} 展示了单条数据包的详细信息视图。点击列表中的数据包后，会弹出此模态窗口。上方显示协议头解析出的关键字段，下方提供完整的十六进制（Hex）与 ASCII 对照视图，方便安全研究人员深入分析 Payload 内容。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshots/hex_view.png}
+    \caption{数据包 Hex 详情视图}
+    \label{fig:hex}
+\end{figure}
+
+\subsection{流量趋势监控}
+图 \ref{fig:grapher} 展示了实时流量监控插件。该插件利用 HTML5 Canvas 绘制动态折线图，实时反映网络流量的吞吐量变化趋势。图表支持自动刷新，并能通过鼠标悬停查看具体时间点的流量统计数据，帮助用户快速识别流量峰值。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshots/traffic-grapher.png}
+    \caption{实时流量图表 (Traffic Grapher)}
+    \label{fig:grapher}
+\end{figure}
+
+\subsection{报告生成}
+图 \ref{fig:reporter} 展示了网络报告生成插件。用户可以在此配置报告标题、包含的数据包数量限制以及协议过滤器。点击生成后，系统将基于当前捕获的数据自动生成一份包含统计图表（如 Top Talkers、协议分布）和详细数据的 PDF 报告。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshots/report_generator.png}
+    \caption{网络报告生成器 (Network Reporter)}
+    \label{fig:reporter}
+\end{figure}
+
+\subsection{生成的 PDF 报告示例}
+图 \ref{fig:report_result} 展示了系统生成的最终 PDF 报告。报告内容排版整洁，包含了本次抓包会话的元数据（开始时间、持续时间、总包数）、关键统计指标以及自动生成的图表。该报告可直接用于网络审计或教学演示。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshots/traffic-report.png}
+    \caption{生成的 PDF 流量报告预览}
+    \label{fig:report_result}
+\end{figure}
+
+\subsection{插件管理}
+图 \ref{fig:settings} 展示了全局插件设置界面。用户可以在此管理已安装的插件，启用或禁用特定功能，并查看插件的版本和权限信息。这种模块化管理界面确保了系统的可扩展性和用户对功能的完全控制。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshots/plugin-settings.png}
+    \caption{插件设置界面}
+    \label{fig:settings}
+\end{figure}

@@ -1,0 +1,59 @@
+{
+  "name": "netflow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "powershell -Command \"if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell -ArgumentList '-Command cd %cd%; npm run start' -Verb RunAs; exit } else { electron . }\"",
+    "build": "electron-builder",
+    "debug": "electron ."
+  },
+  "build": {
+    "appId": "com.netflow.app",
+    "productName": "Netflow",
+    "icon": "assets/icon.png",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": true
+    },
+    "extraResources": [
+      {
+        "from": "plugins",
+        "to": "plugins",
+        "filter": [
+          "**/*",
+          "!python-sniffer/__pycache__/**",
+          "!python-sniffer/build/**"
+        ]
+      },
+      {
+        "from": "settings.json",
+        "to": "settings.json"
+      },
+      {
+        "from": "preload-base.js",
+        "to": "preload-base.js"
+      }
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^39.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "dependencies": {
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2"
+  }
+}

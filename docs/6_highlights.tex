@@ -1,0 +1,12 @@
+\section{程序亮点}
+
+\begin{itemize}
+  \item \textbf{模块化插件架构}：插件以声明式方式注册、沙箱化执行。主程序仅提供底座，所有业务功能均由插件实现，极大地提高了系统的可扩展性。
+  \item \textbf{高性能渲染}：
+  \begin{itemize}
+      \item \textbf{虚拟列表}：Visualizer 插件通过虚拟滚动轻松支撑 10w+ 数据包的流畅展示。
+      \item \textbf{Canvas 绘图}：Grapher 插件利用 Canvas 绘制实时波形，CPU 占用极低。
+  \end{itemize}
+  \item \textbf{灵活的过滤引擎}：Sniffer 插件利用 Python 的动态特性实现了强大的过滤表达式求值，支持 \texttt{src}, \texttt{dst}, \texttt{proto} 等关键字及逻辑运算。
+  \item \textbf{Docking 与 Popout}：支持多视图、多屏演示，用户可以将感兴趣的图表或列表弹出为独立窗口，适应多显示器工作环境。
+\end{itemize}
